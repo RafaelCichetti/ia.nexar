@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste API Cliente</title>
+</head>
+<body>
+    <h1>Teste API Cliente</h1>
+    
+    <div>
+        <h2>Carregar Dados do Cliente</h2>
+        <button onclick="loadClient()">Carregar</button>
+        <pre id="clientData"></pre>
+    </div>
+    
+    <div>
+        <h2>Atualizar Nome do Assistente</h2>
+        <input type="text" id="assistantName" placeholder="Nome do assistente">
+        <button onclick="updateAssistantName()">Salvar Nome</button>
+    </div>
+    
+    <div>
+        <h2>Atualizar Instruções</h2>
+        <textarea id="instructions" placeholder="Instruções da IA"></textarea>
+        <button onclick="updateInstructions()">Salvar Instruções</button>
+    </div>
+    
+    <div id="result"></div>
+
+    <script>
+        async function loadClient() {
+            try {
+                const response = await fetch('http://localhost:3000/client/loja_tech_store');
+                const data = await response.json();
+                document.getElementById('clientData').textContent = JSON.stringify(data, null, 2);
+                
+                // Preencher campos
+                document.getElementById('assistantName').value = data.data.ai_assistant_name || '';
+                document.getElementById('instructions').value = data.data.ai_instructions || '';
+            } catch (error) {
+                document.getElementById('result').innerHTML = '<p style="color: red;">Erro: ' + error.message + '</p>';
+            }
+        }
+        
+        async function updateAssistantName() {
+            const name = document.getElementById('assistantName').value;
+            try {
+                const response = await fetch('http://localhost:3000/client/loja_tech_store', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ai_assistant_name: name })
+                });
+                const data = await response.json();
+                document.getElementById('result').innerHTML = '<p style="color: green;">Nome salvo: ' + JSON.stringify(data) + '</p>';
+                loadClient(); // Recarregar dados
+            } catch (error) {
+                document.getElementById('result').innerHTML = '<p style="color: red;">Erro: ' + error.message + '</p>';
+            }
+        }
+        
+        async function updateInstructions() {
+            const instructions = document.getElementById('instructions').value;
+            try {
+                const response = await fetch('http://localhost:3000/client/loja_tech_store', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ai_instructions: instructions })
+                });
+                const data = await response.json();
+                document.getElementById('result').innerHTML = '<p style="color: green;">Instruções salvas: ' + JSON.stringify(data) + '</p>';
+                loadClient(); // Recarregar dados
+            } catch (error) {
+                document.getElementById('result').innerHTML = '<p style="color: red;">Erro: ' + error.message + '</p>';
+            }
+        }
+        
+        // Carregar dados inicial
+        loadClient();
+    </script>
+</body>
+</html>

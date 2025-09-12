@@ -1,0 +1,10 @@
+.admin-register-container { max-width:640px; margin:0 auto; background:var(--bg-card); padding:var(--space-2xl); border-radius:var(--radius-xl); box-shadow:var(--shadow-md); border:1px solid var(--border-primary); backdrop-filter:blur(12px); }
+.admin-register-container h2 { margin-top:0; font-size:2rem; background:linear-gradient(135deg,var(--text-primary),var(--primary)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; font-weight:800; margin-bottom:var(--space-lg); }
+.admin-register-form .row { display:flex; flex-direction:column; margin-bottom:var(--space-lg); }
+.admin-register-form label { font-weight:600; margin-bottom:6px; color:var(--text-secondary); font-size:.9rem; text-transform:uppercase; letter-spacing:.5px; }
+.admin-register-form input { padding:14px 16px; border:2px solid var(--border-primary); border-radius:var(--radius-lg); font-size:0.95rem; background:var(--bg-tertiary); color:var(--text-primary); transition:.25s; }
+.admin-register-form input:focus { outline:none; border-color:var(--primary); background:var(--bg-tertiary); box-shadow:0 0 0 4px rgba(16,163,127,.15); transform:translateY(-2px); }
+.admin-register-form .btn { background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:#fff; border:none; padding:14px 18px; font-size:1rem; border-radius:var(--radius-lg); cursor:pointer; width:100%; font-weight:700; letter-spacing:.5px; box-shadow:var(--shadow-sm); transition:.25s; }
+.admin-register-form .btn:hover:not(:disabled) { box-shadow:var(--shadow-lg), var(--shadow-glow); transform:translateY(-3px); }
+.admin-register-form .btn:disabled { opacity:0.6; cursor:not-allowed; }
+@media (max-width:760px){ .admin-register-container { padding:var(--space-xl); } }

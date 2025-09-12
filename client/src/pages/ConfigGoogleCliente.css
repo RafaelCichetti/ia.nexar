@@ -1,0 +1,46 @@
+.config-google-cliente {
+  max-width: 420px;
+  margin: 32px auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 32px 24px;
+}
+.config-google-cliente h2 {
+  margin-bottom: 18px;
+  font-size: 1.3rem;
+  color: #1a237e;
+}
+.config-google-cliente form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.config-google-cliente label {
+  font-weight: 500;
+  color: #333;
+}
+.config-google-cliente input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  margin-top: 4px;
+  font-size: 1rem;
+}
+.config-google-cliente .btn {
+  margin-top: 10px;
+}
+.config-google-cliente .sucesso {
+  color: #388e3c;
+  margin-left: 10px;
+}
+.config-google-cliente .erro {
+  color: #d32f2f;
+  margin-left: 10px;
+}
+.config-google-cliente .dica {
+  margin-top: 18px;
+  font-size: 0.95em;
+  color: #666;
+}

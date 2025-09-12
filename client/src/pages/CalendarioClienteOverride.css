@@ -1,0 +1,88 @@
+.modal-detalhes {
+  max-height: 80vh !important;
+  overflow-y: auto !important;
+}
+.agenda-dia {
+  color: #fff !important;
+  font-size: 1.08rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 2px !important;
+  z-index: 1;
+  position: relative;
+}
+.agenda-grid {
+  border-radius: 16px !important;
+  box-shadow: 0 2px 16px #00e67622, 0 1.5px 8px #0002 !important;
+  background: #181c24 !important;
+  padding: 12px 8px 18px 8px !important;
+  border: 1.5px solid #00e67633 !important;
+}
+.agenda-cell {
+  border-radius: 10px !important;
+  border: 2px solid transparent !important;
+  background: #232837 !important;
+  transition: border 0.2s, background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 6px #0002 !important;
+}
+.agenda-cell.tem-evento {
+  border: 2px solid #00e676 !important;
+  box-shadow: 0 2px 12px #00e67633 !important;
+}
+.agenda-cell:hover {
+  border-color: #00bfae !important;
+  background: #232837ee !important;
+  box-shadow: 0 2px 12px #00bfae33 !important;
+  z-index: 2;
+}
+/* Correções forçadas para o calendário do cliente */
+.agenda-dias-semana, .agenda-dia-semana {
+  all: unset;
+}
+.agenda-dias-semana {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 8px !important;
+  margin-bottom: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 16px 0 16px !important;
+  min-height: 32px !important;
+}
+.agenda-dia-semana {
+  background: none !important;
+  color: #00e676 !important;
+  font-weight: 900 !important;
+  font-size: 1.18rem !important;
+  text-align: center !important;
+  box-shadow: none !important;
+  border: none !important;
+  cursor: default !important;
+  min-height: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  letter-spacing: 0.5px !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 2px #000a !important;
+}
+.agenda-eventos-count {
+  background: #00e676 !important;
+  color: #232837 !important;
+  border-radius: 10px !important;
+  font-size: 0.82rem !important;
+  padding: 1px 6px !important;
+  margin-top: 4px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 4px #00e67633 !important;
+  display: inline-block !important;
+}
+
+.agenda-cell {
+  border: 2px solid transparent !important;
+  background: #232837 !important;
+  transition: border 0.2s, background 0.2s;
+}
+.agenda-cell.tem-evento {
+  border: 2px solid #00e676 !important;
+}

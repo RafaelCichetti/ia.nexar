@@ -1,0 +1,333 @@
+.agenda-dias-semana {
+  margin-bottom: 0;
+  background: none;
+  box-shadow: none;
+  padding: 0 16px 0 16px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  min-height: 28px;
+}
+.agenda-dia-semana {
+  background: none !important;
+  color: #00e676;
+  font-weight: 700;
+  font-size: 1.08rem;
+  text-align: center;
+  box-shadow: none;
+  border: none;
+  cursor: default;
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  letter-spacing: 0.5px;
+  opacity: 1;
+}
+.btn.btn-primary {
+  background: #00e676;
+  color: #232837;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 28px;
+  font-weight: 700;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: 16px;
+}
+.btn.btn-primary:hover {
+  background: #00bfae;
+  color: #fff;
+}
+.agenda-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.agenda-header h2 {
+  font-size: 2.2rem;
+  color: #fff;
+  margin: 0 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.agenda-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.agenda-header h2 {
+  font-size: 2.2rem;
+  color: #fff;
+  margin: 0 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.agenda-header .btn.btn-primary {
+  margin-left: 32px;
+  padding: 14px 32px;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #00e67633;
+}
+.agenda-header .btn.btn-primary:hover {
+  background: #00bfae;
+  color: #fff;
+}
+.agenda-header button:not(.btn-primary) {
+  background: #232837;
+  color: #00e676;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.agenda-header button:not(.btn-primary):hover {
+  background: #00e676;
+  color: #232837;
+}
+
+.agenda-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  background: #181c24;
+  border-radius: 10px;
+  padding: 16px;
+  min-height: 340px;
+  box-shadow: 0 2px 12px #0003;
+}
+.agenda-cell {
+  background: #232837;
+  border-radius: 8px;
+  min-height: 60px;
+  color: #fff;
+  padding: 8px 6px 6px 8px;
+  font-size: 1.1rem;
+  position: relative;
+  cursor: pointer;
+  transition: box-shadow 0.2s, background 0.2s;
+.agenda-dias-semana {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 0;
+  background: none;
+  box-shadow: none;
+  padding: 0 16px 0 16px;
+  min-height: 32px;
+}
+.agenda-dia-semana {
+  background: none !important;
+  color: #00e676 !important;
+  font-weight: 800;
+  font-size: 1.15rem;
+  text-align: center;
+  box-shadow: none;
+  border: none;
+  cursor: default;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  letter-spacing: 0.5px;
+  opacity: 1 !important;
+  text-shadow: 0 1px 2px #000a;
+}
+  background: #00e676;
+  color: #232837;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  padding: 2px 8px;
+  margin-top: 6px;
+  font-weight: 700;
+  box-shadow: 0 1px 4px #00e67633;
+}
+.agenda-lista-eventos {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.evento-item {
+  background: #181c24;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 1px 4px #0001;
+  color: #fff;
+  font-size: 1rem;
+}
+.evento-item.status-agendado { border-left: 4px solid #00e676; }
+.evento-item.status-concluido { border-left: 4px solid #2979ff; }
+.evento-item.status-cancelado { border-left: 4px solid #ff1744; }
+.form-editar-compromisso {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.form-editar-compromisso label {
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+.form-editar-compromisso input,
+.form-editar-compromisso select {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #333;
+  background: #181c24;
+  color: #fff;
+  margin-top: 2px;
+}
+.form-editar-compromisso button {
+  margin-top: 8px;
+  margin-right: 8px;
+}
+.btn-danger {
+  background: #ff1744;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-danger:hover {
+  background: #d50000;
+}
+.btn-secondary {
+  background: #bdbdbd;
+  color: #232837;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-secondary:hover {
+  background: #757575;
+  color: #fff;
+}
+.modal-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-detalhes {
+  background: #232837;
+  border-radius: 8px;
+  padding: 32px 24px;
+  min-width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 4px 24px #0008;
+  color: #fff;
+}
+.modal-detalhes h2 {
+  margin-top: 0;
+  color: #00e676;
+}
+.modal-detalhes p {
+  margin: 8px 0;
+  font-size: 1.05rem;
+}
+.modal-detalhes button {
+  margin-top: 16px;
+}
+
+.calendario-cliente {
+  padding: 32px 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.kanban-agenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+  max-width: 100vw;
+  overflow-x: auto;
+  justify-content: center;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.kanban-col {
+  background: #181c24;
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 260px;
+  max-width: 350px;
+  flex: 1 1 300px;
+  min-height: 400px;
+  box-shadow: 0 2px 8px #0002;
+}
+.kanban-col h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+  color: #00e676;
+}
+.compromisso-card {
+  background: #232837;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 4px #0001;
+  cursor: grab;
+  transition: box-shadow 0.2s;
+}
+.compromisso-card:active {
+  box-shadow: 0 2px 8px #0003;
+}
+.compromisso-hora {
+  font-size: 0.95rem;
+  color: #00bfae;
+  margin-bottom: 4px;
+}
+.compromisso-procedimento {
+  font-weight: bold;
+  color: #fff;
+}
+.compromisso-nome {
+  color: #b2ff59;
+  font-size: 0.95rem;
+}
+.compromisso-desc {
+  color: #bdbdbd;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+.status-agendado {
+  border-left: 4px solid #00e676;
+}
+.status-concluido {
+  border-left: 4px solid #2979ff;
+}
+.status-cancelado {
+  border-left: 4px solid #ff1744;
+}
+.erro {
+  color: #ff1744;
+  margin-bottom: 12px;
+}

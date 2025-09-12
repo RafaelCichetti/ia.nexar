@@ -1,0 +1,30 @@
+version: '3.9'
+services:
+  app:
+    build: .
+    container_name: nexar_app
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - mongo
+    ports:
+      - "5010:5010"
+    volumes:
+      - wwebjs_auth:/app/.wwebjs_auth
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
+  mongo:
+    image: mongo:6
+    container_name: nexar_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: nexar
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+volumes:
+  mongo_data:
+  wwebjs_auth:

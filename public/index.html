@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Nexar - The Future of Conversational AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10a37f;
+            --primary-light: #1dd1a1;
+            --primary-dark: #0d8f72;
+            --secondary: #0f0f0f;
+            --accent: #64748b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --bg-white: #1a1a1a;
+            --bg-gray-50: #111111;
+            --bg-gray-100: #0a0a0a;
+            --border: #2d2d2d;
+            --shadow: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+            --card-bg: #1e1e1e;
+            --card-border: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-gray-100);
+            overflow-x: hidden;
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0a0a0a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(16, 163, 127, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(100, 116, 139, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 163, 127, 0.08) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+        }
+
+        .hero-content {
+            text-align: center;
+            color: white;
+            max-width: 800px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 0%, #10a37f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            font-weight: 400;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(16, 163, 127, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(16, 163, 127, 0.1);
+            color: white;
+            border: 2px solid rgba(16, 163, 127, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(16, 163, 127, 0.2);
+            border-color: rgba(16, 163, 127, 0.5);
+            box-shadow: 0 8px 32px rgba(16, 163, 127, 0.2);
+        }
+
+        .features-preview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+            margin-bottom: 6rem;
+            padding-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .feature-card {
+            background: rgba(16, 163, 127, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(16, 163, 127, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(16, 163, 127, 0.15);
+            border-color: rgba(16, 163, 127, 0.3);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 32px rgba(16, 163, 127, 0.3);
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            color: white;
+        }
+
+        .demo-section {
+            background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 30%, var(--bg-gray-50) 100%);
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .demo-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 60% 20%, rgba(16, 163, 127, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 30% 80%, rgba(100, 116, 139, 0.06) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .demo-container {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .demo-header {
+            background: var(--secondary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-subtitle {
+            opacity: 0.8;
+        }
+
+        .demo-content {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .demo-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.5rem 3rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(16, 163, 127, 0.3);
+        }
+
+        .demo-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(16, 163, 127, 0.4);
+        }
+
+        .tech-section {
+            background: var(--bg-white);
+            padding: 6rem 0;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .tech-card {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+        }
+
+        .tech-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 40px rgba(16, 163, 127, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .tech-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 12px 40px rgba(16, 163, 127, 0.3);
+        }
+
+        .tech-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .tech-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            background: var(--secondary);
+            color: white;
+            padding: 6rem 0;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-light);
+            display: block;
+            text-shadow: 0 0 20px rgba(16, 163, 127, 0.5);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .features-preview {
+                grid-template-columns: 1fr;
+                max-width: 100%;
+            }
+            
+            .demo-content {
+                padding: 1rem;
+            }
+        }
+
+        .loading-animation {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero-section">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">IA Nexar</h1>
+            <p class="hero-subtitle">
+                Transforme seu atendimento ao cliente com IA conversacional real baseada em ChatGPT. 
+                Respostas inteligentes, contextuais e personalizadas para WhatsApp Business.
+            </p>
+            
+            <div class="hero-buttons">
+                <a href="demo.html" class="btn btn-primary">
+                    <i class="fas fa-play"></i>
+                    Testar Demonstração
+                </a>
+                <a href="#tech" class="btn btn-secondary">
+                    <i class="fas fa-cog"></i>
+                    Como Funciona
+                </a>
+            </div>
+            
+            <div class="features-preview">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="feature-title">IA Real</h3>
+                    <p class="feature-desc">ChatGPT integrado, não apenas respostas automáticas</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <h3 class="feature-title">WhatsApp Business</h3>
+                    <p class="feature-desc">Integração oficial com WhatsApp Cloud API</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Analytics</h3>
+                    <p class="feature-desc">Métricas detalhadas e controle de custos</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="feature-title">24/7 Disponível</h3>
+                    <p class="feature-desc">Atendimento ininterrupto, sem horário comercial</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="demo-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Experimente Agora</h2>
+                <p class="section-subtitle">
+                    Veja nossa IA conversacional em ação. Sistema completo funcionando em tempo real 
+                    com ChatGPT integrado.
+                </p>
+            </div>
+            
+            <div class="demo-container">
+                <div class="demo-header">
+                    <h3 class="demo-title">🚀 Demonstração Interativa</h3>
+                    <p class="demo-subtitle">Sistema rodando em modo demo com respostas inteligentes</p>
+                </div>
+                <div class="demo-content">
+                    <a href="demo.html" class="demo-link">
+                        <i class="fas fa-comments"></i>
+                        Iniciar Chat de Demonstração
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="tech-section" id="tech">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Tecnologia de Ponta</h2>
+                <p class="section-subtitle">
+                    Arquitetura moderna com as melhores ferramentas do mercado para máxima performance e confiabilidade.
+                </p>
+            </div>
+            
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="tech-title">OpenAI ChatGPT</h3>
+                    <p class="tech-desc">
+                        Integração direta com GPT-3.5-turbo para respostas naturais e contextuais. 
+                        Controle completo de custos e tokens.
+                    </p>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fab fa-node-js"></i>
+                    </div>
+                    <h3 class="tech-title">Backend Robusto</h3>
+                    <p class="tech-desc">
+                        Node.js + Express com MongoDB para alta performance e escalabilidade. 
+                        API REST completa e webhook WhatsApp.
+                    </p>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">
+                        <i class="fab fa-react"></i>
+                    </div>
+                    <h3 class="tech-title">Interface Moderna</h3>
+                    <p class="tech-desc">
+                        Dashboard React.js responsivo para configuração de clientes, 
+                        analytics e monitoramento em tempo real.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">Pronto para Revolucionar seu Atendimento?</h2>
+            <p class="cta-subtitle">
+                Implemente IA conversacional real em seu WhatsApp Business hoje mesmo. 
+                Sistema completo, configurável e pronto para produção.
+            </p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">100%</span>
+                    <div class="stat-label">Funcional</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">< 2s</span>
+                    <div class="stat-label">Tempo de Resposta</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">∞</span>
+                    <div class="stat-label">Escalabilidade</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">24/7</span>
+                    <div class="stat-label">Disponibilidade</div>
+                </div>
+            </div>
+            
+            <div class="hero-buttons">
+                <a href="demo.html" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    Começar Agora
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add loading animation to demo link
+        document.querySelector('.demo-link').addEventListener('click', function(e) {
+            const icon = this.querySelector('i');
+            icon.className = 'loading-animation';
+        });
+
+        // Parallax effect for hero background
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.hero-bg');
+            const speed = scrolled * 0.5;
+            parallax.style.transform = `translate3d(0, ${speed}px, 0)`;
+        });
+    </script>
+</body>
+</html>

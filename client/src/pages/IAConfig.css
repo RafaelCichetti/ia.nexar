@@ -1,0 +1,334 @@
+/* Importar estilos base */
+@import url('./ClientDetail.css');
+
+.ia-config {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-description {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.stat-icon {
+  font-size: 1rem;
+}
+
+.stat-icon.success {
+  color: #28a745;
+}
+
+.default-response-editor {
+  background: var(--bg-gray-50);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary);
+}
+
+.response-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+}
+
+.response-text {
+  flex: 1;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-right: 15px;
+}
+
+.editor-form {
+  padding: 15px;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.config-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.config-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  border: 2px solid var(--card-border);
+  border-radius: 12px;
+  background: var(--card-bg);
+  transition: all 0.3s ease;
+}
+
+.config-item:hover {
+  border-color: var(--primary);
+  box-shadow: 0 8px 32px rgba(16, 163, 127, 0.2);
+}
+
+.config-content {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.config-keyword {
+  margin-bottom: 10px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.config-keyword strong {
+  color: var(--primary);
+}
+
+.config-response {
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.config-response strong {
+  color: var(--text-primary);
+}
+
+.config-meta {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.config-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.config-editor {
+  width: 100%;
+}
+
+.config-editor .form-group {
+  margin-bottom: 15px;
+}
+
+.config-editor label {
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.example-box {
+  background: rgba(16, 163, 127, 0.1);
+  border: 1px solid rgba(16, 163, 127, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.example-box h4 {
+  color: var(--primary);
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.example-item {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: var(--card-bg);
+  border-radius: 6px;
+  border-left: 4px solid var(--primary);
+}
+
+.example-item strong {
+  color: var(--primary);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px;
+  background: var(--bg-gray-50);
+  border-radius: 12px;
+  border: 2px dashed var(--card-border);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.empty-state h4 {
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+/* Modal específico para IA Config */
+.modal {
+  max-width: 600px;
+}
+
+.modal-body .form-group:last-of-type {
+  margin-bottom: 0;
+}
+
+.form-control {
+  font-family: inherit;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Estilos para Nome do Assistente */
+.assistant-editor,
+.instructions-editor {
+  background: var(--bg-gray-50);
+  border-radius: 8px;
+  padding: 20px;
+  border-left: 4px solid var(--primary);
+}
+
+.assistant-display,
+.instructions-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  background: var(--bg-gray-50);
+  border-radius: 8px;
+  padding: 20px;
+  border-left: 4px solid var(--success);
+}
+
+.current-value {
+  flex: 1;
+}
+
+.current-value strong {
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.instructions-preview {
+  margin-top: 10px;
+  padding: 15px;
+  background: var(--bg-white);
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.instructions-preview pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.instructions-preview em {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-light);
+}
+
+.instructions-textarea {
+  min-height: 150px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.form-text {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .section-stats {
+    justify-content: center;
+  }
+  
+  .config-item {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .config-content {
+    margin-right: 0;
+  }
+  
+  .config-actions {
+    justify-content: center;
+  }
+  
+  .response-display,
+  .assistant-display,
+  .instructions-display {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .editor-actions {
+    justify-content: center;
+  }
+  
+  .example-box {
+    margin: 15px 0;
+    padding: 15px;
+  }
+}
