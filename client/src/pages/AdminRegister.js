@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import './AdminRegister.css';
 
 const AdminRegister = () => {
+  const API_BASE = process.env.REACT_APP_API_BASE || process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5010' : '');
   const { token, user } = useAuth();
   const [form, setForm] = useState({ nome: '', email: '', senha: '', confirmar: '' });
   const [loading, setLoading] = useState(false);
@@ -20,7 +21,7 @@ const AdminRegister = () => {
     if (form.senha !== form.confirmar) return toast.error('Senhas não conferem');
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

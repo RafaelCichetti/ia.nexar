@@ -4,6 +4,7 @@ import { FaUser, FaLock } from 'react-icons/fa';
 import './Login.css';
 
 const Login = () => {
+  const API_BASE = process.env.REACT_APP_API_BASE || process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5010' : '');
   const { login, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -39,7 +40,7 @@ const Login = () => {
     if (!resetEmail) return;
     setResetLoading(true);
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: resetEmail })
@@ -65,7 +66,7 @@ const Login = () => {
     if (!pin || pin.length !== 8) return setResetError('Informe o PIN de 8 dígitos');
     setResetLoading(true);
     try {
-      const res = await fetch('/api/auth/verify-reset-pin', {
+      const res = await fetch(`${API_BASE}/api/auth/verify-reset-pin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: resetEmail, pin })
@@ -93,7 +94,7 @@ const Login = () => {
     if (newPass !== confirmPass) return setResetError('As senhas não coincidem');
     setResetLoading(true);
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: resetToken, nova_senha: newPass })

@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import './WhatsAppConnect.css';
 
 const WhatsAppConnect = ({ clientId, clientName }) => {
+  const API_BASE = process.env.REACT_APP_API_BASE || process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5010' : '');
   const [qrCode, setQrCode] = useState('');
   const [status, setStatus] = useState('disconnected');
   const [loading, setLoading] = useState(false);
@@ -14,7 +15,7 @@ const WhatsAppConnect = ({ clientId, clientName }) => {
     // Buscar QR Code
     const fetchQRCode = async () => {
       try {
-        const response = await fetch(`/whatsapp/${clientId}/qrcode`);
+  const response = await fetch(`${API_BASE}/whatsapp/${clientId}/qrcode`);
         const data = await response.json();
         
         if (data.success && data.qrCode) {
@@ -28,7 +29,7 @@ const WhatsAppConnect = ({ clientId, clientName }) => {
     // Verificar status da conexão
     const checkStatus = async () => {
       try {
-        const response = await fetch(`/whatsapp/${clientId}/status`);
+  const response = await fetch(`${API_BASE}/whatsapp/${clientId}/status`);
         const data = await response.json();
         
         if (data.success) {
@@ -64,7 +65,7 @@ const WhatsAppConnect = ({ clientId, clientName }) => {
   // Atualizar QR code manualmente
   const refreshQRCode = async () => {
     try {
-      const response = await fetch(`/whatsapp/${clientId}/qrcode`);
+  const response = await fetch(`${API_BASE}/whatsapp/${clientId}/qrcode`);
       const data = await response.json();
       
       if (data.success && data.qrCode) {
@@ -83,7 +84,7 @@ const WhatsAppConnect = ({ clientId, clientName }) => {
   const connectWhatsApp = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/whatsapp/${clientId}/connect`, {
+      const response = await fetch(`${API_BASE}/whatsapp/${clientId}/connect`, {
         method: 'POST'
       });
       
@@ -107,7 +108,7 @@ const WhatsAppConnect = ({ clientId, clientName }) => {
   const disconnectWhatsApp = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/whatsapp/${clientId}/disconnect`, {
+      const response = await fetch(`${API_BASE}/whatsapp/${clientId}/disconnect`, {
         method: 'POST'
       });
       

@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import './AdminList.css';
 
 const AdminList = () => {
+  const API_BASE = process.env.REACT_APP_API_BASE || process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5010' : '');
   const { token, user } = useAuth();
   const [admins, setAdmins] = useState([]);
   const [filtered, setFiltered] = useState([]);
@@ -16,7 +17,7 @@ const AdminList = () => {
   const carregar = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/admins', { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(`${API_BASE}/api/auth/admins`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       if (data.success) {
         setAdmins(data.data);
