@@ -1,11 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { toast } from 'react-toastify';
 
-const API_BASE =
-  process.env.REACT_APP_API_BASE ||
-  process.env.REACT_APP_API_URL ||
-  (process.env.NODE_ENV === 'development' ? 'http://localhost:5010' : '');
-
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -15,7 +10,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      fetch(`${API_BASE}/api/auth/me`, {
+      fetch('/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -33,7 +28,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, senha) => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha })
@@ -50,7 +45,7 @@ export const AuthProvider = ({ children }) => {
         toast.error(data.error || 'Erro ao fazer login');
         return false;
       }
-    } catch (e) {
+    } catch {
       toast.error('Erro ao conectar ao servidor');
       return false;
     } finally {

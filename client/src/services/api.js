@@ -1,13 +1,7 @@
 
 import axios from 'axios';
 
-// Base da API:
-// - Produção (Vercel): defina REACT_APP_API_BASE (ex.: https://api.seudominio.com)
-// - Desenvolvimento: usa proxy do CRA quando vazio
-const API_BASE_URL =
-  process.env.REACT_APP_API_BASE ||
-  process.env.REACT_APP_API_URL ||
-  (process.env.NODE_ENV === 'development' ? 'http://localhost:5010' : '');
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5010';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
