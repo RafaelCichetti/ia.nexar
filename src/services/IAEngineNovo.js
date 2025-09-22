@@ -88,9 +88,11 @@ class IAEngine {
   constructor() {
     if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-your-openai-api-key-here') {
       this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      console.log('✅ OpenAI inicializado');
+      this.openaiModel = process.env.OPENAI_MODEL || 'gpt-3.5-turbo';
+      console.log(`✅ OpenAI inicializado (modelo: ${this.openaiModel})`);
     } else {
       this.openai = null;
+      this.openaiModel = null;
       console.log('⚠️  OpenAI API Key não configurada - modo simulação');
     }
     this.conversationCache = new Map();
@@ -161,7 +163,7 @@ class IAEngine {
           if (this.openai) {
             const mensagens = await this._montarMensagensComContexto(dadosDoCliente, telefoneUsuario, msg);
             const resposta = await this.openai.chat.completions.create({
-              model: 'gpt-3.5-turbo',
+              model: this.openaiModel || 'gpt-3.5-turbo',
               messages: mensagens,
               temperature: 0.7
             });

@@ -29,7 +29,12 @@ router.post('/:clientId/connect', async (req, res) => {
 
     // Criar nova sessão
     const result = await WhatsAppService.createClientSession(clientId, clientData);
-    
+    if (!result?.success) {
+      return res.status(500).json({
+        success: false,
+        message: result?.message || 'Falha ao iniciar sessão do WhatsApp'
+      });
+    }
     res.json({
       success: true,
       message: 'Conectando ao WhatsApp...',
@@ -76,6 +81,24 @@ router.get('/:clientId/qrcode', async (req, res) => {
   }
 });
 
+// Obter QR Code como PNG (útil para abrir no navegador)
+router.get('/:clientId/qr.png', async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    const qrCode = await WhatsAppService.getQRCode(clientId);
+    if (!qrCode.success || !qrCode.qrCode) {
+      return res.status(404).json({ success: false, message: 'QR Code não disponível' });
+    }
+    const img = Buffer.from(qrCode.qrCode, 'base64');
+    res.set('Content-Type', 'image/png');
+    res.set('Cache-Control', 'no-store');
+    res.send(img);
+  } catch (error) {
+    console.error('❌ Erro ao obter QR PNG:', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+  }
+});
+
 // Obter status da conexão
 router.get('/:clientId/status', async (req, res) => {
   try {
@@ -115,6 +138,18 @@ router.post('/:clientId/disconnect', async (req, res) => {
       success: false,
       message: 'Erro interno do servidor'
     });
+  }
+});
+
+// Resetar sessão local (apaga credenciais salvas) e desconecta
+router.post('/:clientId/reset', async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    const result = await WhatsAppService.resetSession(clientId);
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Erro ao resetar sessão WhatsApp:', error);
+    res.status(500).json({ success: false, message: 'Erro interno do servidor' });
   }
 });
 

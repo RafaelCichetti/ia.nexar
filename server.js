@@ -13,11 +13,18 @@ const whatsappRoutes = require('./src/routes/whatsapp');
 const authRoutes = require('./src/routes/auth');
 const compromissoRoutes = require('./src/routes/compromisso');
 const publicRoutes = require('./src/routes/public');
+const aiRoutes = require('./src/routes/ai');
 
 
 const app = express();
 const BASE_PORT = parseInt(process.env.PORT, 10) || 5000;
 let PORT = BASE_PORT;
+
+// Validação mínima de ambiente (evita crash em DEV quando JWT_SECRET ausente)
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = 'dev-temporary-jwt-secret-change-in-production';
+  console.warn('⚠️  JWT_SECRET não definido. Usando fallback inseguro (apenas DEV). Defina JWT_SECRET em produção!');
+}
 
 // Middlewares
 app.use(helmet());
@@ -47,6 +54,7 @@ app.use('/whatsapp', whatsappRoutes);
 app.use('/api/auth', authRoutes); // garante prefixo correto
 app.use('/compromisso', compromissoRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/ai', aiRoutes);
 
 
 // Rota de teste para debugging
