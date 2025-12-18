@@ -1,0 +1,7 @@
+{
+  "name": "nexar-server",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Server bootstrap for Render start script (uses root dependencies)",
+  "license": "MIT"
+}
