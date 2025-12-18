@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -14,6 +15,7 @@ const authRoutes = require('./src/routes/auth');
 const compromissoRoutes = require('./src/routes/compromisso');
 const publicRoutes = require('./src/routes/public');
 const aiRoutes = require('./src/routes/ai');
+const ReminderService = require('./src/services/ReminderService');
 
 
 const app = express();
@@ -35,6 +37,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Servir arquivos estáticos da pasta public
 app.use(express.static('public'));
+
+// Servir build do React (client/build) em produção ou quando habilitado
+const serveClient = process.env.NODE_ENV === 'production' || String(process.env.SERVE_CLIENT || '').toLowerCase() === 'true';
+if (serveClient) {
+  const buildDir = path.join(__dirname, 'client', 'build');
+  app.use(express.static(buildDir));
+}
 
 // Conectar ao MongoDB
 mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/saas-ia-whatsapp', {
@@ -150,6 +159,21 @@ function startServer(attempt = 0) {
 
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
+
+// Fallback SPA: qualquer rota não-API retorna index.html
+if (serveClient) {
+  const buildDir = path.join(__dirname, 'client', 'build');
+  app.get('*', (req, res, next) => {
+    // Evita interceptar APIs conhecidas
+    const isApi = req.originalUrl.startsWith('/api/') ||
+                  req.originalUrl.startsWith('/webhook') ||
+                  req.originalUrl.startsWith('/client') ||
+                  req.originalUrl.startsWith('/whatsapp') ||
+                  req.originalUrl.startsWith('/compromisso');
+    if (isApi) return next();
+    res.sendFile(path.join(buildDir, 'index.html'));
+  });
+}
       if (attempt < 5) {
         console.warn(`⚠️ Porta ${PORT} em uso. Tentando próxima porta...`);
         PORT = BASE_PORT + attempt + 1;
@@ -166,5 +190,13 @@ function startServer(attempt = 0) {
 }
 
 startServer();
+
+// Inicia o scheduler de lembretes (não bloqueante)
+try {
+  ReminderService.start();
+  console.log('⏰ Scheduler de lembretes iniciado (30min antes)');
+} catch (e) {
+  console.warn('⚠️  Falha ao iniciar scheduler de lembretes:', e?.message || e);
+}
 
 module.exports = app;

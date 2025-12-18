@@ -119,3 +119,11 @@ _backups/
 
 # Credenciais locais do Google (removemos a integração, mas garanta que não subirá)
 google_oauth.json
+
+
+node_modules
+.env
+client/node_modules
+server/node_modules
+build
+client/build

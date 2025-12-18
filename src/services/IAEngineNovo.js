@@ -15,7 +15,7 @@ class IAEngine {
     const agora = new Date();
 
     // 1) Formato dd/mm opcional com hora
-    const rxDataHora = /(\d{1,2})\/(\d{1,2})(?:\s*(?:as|a|às)?\s*(\d{1,2})(?::(\d{2}))?h?)?/i;
+    const rxDataHora = /(\d{1,2})\/(\d{1,2})(?:\s*(?:as|a|às|ás)?\s*(\d{1,2})(?::(\d{2}))?h?)?/i;
     const m1 = texto.match(rxDataHora);
     if (m1) {
       const [, d, m, h, mi] = m1;
@@ -29,7 +29,7 @@ class IAEngine {
     }
 
     // 2) Hoje / Amanhã / Depois de amanhã com hora
-    const rxHoraSimples = /(?:as|a|às)?\s*(\d{1,2})(?::(\d{2}))?\s*(?:h|horas)?/i;
+    const rxHoraSimples = /(?:as|a|às|ás)?\s*(\d{1,2})(?::(\d{2}))?\s*(?:h|horas)?/i;
     if (/\bhoje\b/.test(texto)) {
       const m = texto.match(rxHoraSimples);
       const h = m ? parseInt(m[1], 10) : 9;
@@ -151,6 +151,18 @@ class IAEngine {
 
   async gerarResposta(mensagem, dadosDoCliente, telefoneUsuario) {
     try {
+      // Comando de cancelamento em qualquer etapa
+      const cancelar = /(cancelar|parar|desistir|sair|encerrar|deixa pra depois|deixar pra depois|nao quero|não quero)/i;
+      if (cancelar.test(mensagem)) {
+        const cacheKeyCancel = `${dadosDoCliente.client_id}:${telefoneUsuario}`;
+        this.intentCache.delete(cacheKeyCancel);
+        return {
+          sucesso: true,
+          resposta: 'Tudo bem! Cancelei o agendamento. Se precisar, posso ajudar com outra coisa.',
+          modelo: 'agenda-propria',
+          etapa: 'cancelado'
+        };
+      }
       const cacheKey = `${dadosDoCliente.client_id}:${telefoneUsuario}`;
       const msg = mensagem.trim();
 
@@ -290,7 +302,7 @@ Está correto?`
         this.intentCache.set(cacheKey, estado);
         return {
           sucesso: true,
-          resposta: `Ok, aqui está seu agendamento:\n• Compromisso: ${estado.tipo}\n• Data/Horário: ${data_inicio.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} às ${data_inicio.getHours().toString().padStart(2,'0')}:00\nEstá correto?`,
+          resposta: `Ok, aqui está seu agendamento:\n• Compromisso: ${estado.tipo}\n• Data/Horário: ${data_inicio.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} às ${data_inicio.getHours().toString().padStart(2,'0')}:${data_inicio.getMinutes().toString().padStart(2,'0')}\nEstá correto?`,
           modelo: 'agenda-propria',
           opcoes: [ { label: '✅ Confirmar', value: 'confirmar' }, { label: '❌ Corrigir', value: 'corrigir' } ]
         };
@@ -302,6 +314,7 @@ Está correto?`
           const Compromisso = require('../models/Compromisso');
           const compromisso = await Compromisso.create({
             client_id: dadosDoCliente.client_id,
+            user_phone: telefoneUsuario || '',
             nome_cliente: dadosDoCliente.nome_usuario_whatsapp || dadosDoCliente.name || 'Cliente',
             procedimento: estado.titulo || estado.tipo,
             descricao: estado.descricao ? `Agendado via WhatsApp: ${estado.descricao}` : `Agendado via WhatsApp`,
@@ -313,7 +326,7 @@ Está correto?`
           this.intentCache.delete(cacheKey);
           return {
             sucesso: true,
-            resposta: 'Seu compromisso foi agendado com sucesso ✅. Você receberá um lembrete antes do horário.',
+            resposta: 'Seu compromisso foi agendado com sucesso ✅. Enviarei um lembrete 30 minutos antes do horário.',
             modelo: 'agenda-propria',
             etapa: 'final',
             compromisso
@@ -327,6 +340,14 @@ Está correto?`
             resposta: `Sem problemas! Qual dia e horário você prefere para o compromisso de *${estado.tipo}*? (Exemplo: 05/09 às 15h)`,
             modelo: 'agenda-propria',
             etapa: 'data'
+          };
+        } else if (cancelar.test(msg)) {
+          this.intentCache.delete(cacheKey);
+          return {
+            sucesso: true,
+            resposta: 'Sem problemas! Cancelei o agendamento. Se quiser retomar depois é só me avisar.',
+            modelo: 'agenda-propria',
+            etapa: 'cancelado'
           };
         } else {
           this.intentCache.set(cacheKey, estado);

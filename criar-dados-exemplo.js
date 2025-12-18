@@ -111,7 +111,12 @@ async function criarDadosDeExemplo() {
     ];
 
     console.log('👥 Criando clientes de exemplo...');
-    await Client.insertMany(clientesExemplo);
+    // Inserção sequencial para acionar o AutoIncrement corretamente (evitar insertMany)
+    for (const dados of clientesExemplo) {
+      const c = new Client(dados);
+      await c.save();
+      console.log(`   • Criado: ${c.name} (client_id: ${c.client_id})`);
+    }
     
     console.log('✅ Dados de exemplo criados com sucesso!');
     console.log(`📊 ${clientesExemplo.length} clientes criados`);

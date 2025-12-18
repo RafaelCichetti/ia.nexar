@@ -6,6 +6,11 @@ const CompromissoSchema = new mongoose.Schema({
     required: true,
     index: true
   },
+  user_phone: {
+    type: String,
+    index: true,
+    default: ''
+  },
   nome_cliente: {
     type: String,
     required: true
@@ -30,6 +35,10 @@ const CompromissoSchema = new mongoose.Schema({
     type: String,
     enum: ['agendado', 'concluido', 'cancelado'],
     default: 'agendado'
+  },
+  reminder_30_sent: {
+    type: Boolean,
+    default: false
   },
   criado_por: {
     type: String,

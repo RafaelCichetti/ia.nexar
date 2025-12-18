@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { toast } from 'react-toastify';
+import api from '../services/api';
 
 const AuthContext = createContext();
 
@@ -10,11 +11,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(res => res.json())
-        .then(data => {
+      api.get('/api/auth/me')
+        .then(res => {
+          const data = res.data;
           if (data.success) setUser(data.data);
           else logout();
         })
@@ -28,12 +27,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, senha) => {
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha })
-      });
-      const data = await res.json();
+      const { data } = await api.post('/api/auth/login', { email, senha });
       if (data.success) {
         setToken(data.data.token);
         localStorage.setItem('token', data.data.token);

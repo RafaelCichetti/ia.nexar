@@ -15,7 +15,7 @@ const Sidebar = () => {
   if (user && user.tipo === 'cliente') return null;
   const menuItems = [
     {
-      path: '/',
+      path: '/dashboard',
       icon: FaHome,
       label: 'Dashboard',
       exact: true
