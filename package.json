@@ -5,7 +5,8 @@
   "main": "server/index.js",
   "scripts": {
     "build": "cd client && npm install && npm run build",
-    "start": "npm install && cd server && npm install && node index.js"
+    "start": "npm install && cd server && npm install && node index.js",
+    "migrate:db": "node scripts/migrate-db.js"
   },
   "keywords": [
     "whatsapp",
@@ -17,6 +18,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "mongodb": "^6.8.0",
     "@anthropic-ai/sdk": "^0.57.0",
     "axios": "^1.5.0",
     "bcryptjs": "^3.0.2",

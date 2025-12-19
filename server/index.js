@@ -34,20 +34,31 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 
 // Servir build do React (client/build) em produção ou quando habilitado
-const serveClient = process.env.NODE_ENV === 'production' || String(process.env.SERVE_CLIENT || '').toLowerCase() === 'true';
-let buildDir;
-if (serveClient) {
-	buildDir = path.join(__dirname, '..', 'client', 'build');
-	app.use(express.static(buildDir));
-}
+// Sempre servir o build do React (garante SPA em produção)
+const buildDir = path.join(__dirname, '..', 'client', 'build');
+app.use(express.static(buildDir));
 
 // Conectar ao MongoDB
-mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/saas-ia-whatsapp', {
-	useNewUrlParser: true,
-	useUnifiedTopology: true,
-})
-.then(() => console.log('✅ Conectado ao MongoDB'))
-.catch(err => console.error('❌ Erro ao conectar ao MongoDB:', err));
+const mongoUri = process.env.MONGO_URI || null;
+if (!mongoUri) {
+	const msg = '❌ MONGO_URI não definida. Configure a conexão do MongoDB (Atlas) em produção.';
+	console.error(msg);
+	if (process.env.NODE_ENV === 'production') {
+		// Em produção, não tentar fallback para localhost
+		// Encerrar o processo para evidenciar a má configuração
+		process.exit(1);
+	} else {
+		const localUri = 'mongodb://localhost:27017/saas-ia-whatsapp';
+		console.warn(`⚠️  Usando fallback local em DEV: ${localUri}`);
+		mongoose.connect(localUri, { useNewUrlParser: true, useUnifiedTopology: true })
+			.then(() => console.log('✅ Conectado ao MongoDB (DEV local)'))
+			.catch(err => console.error('❌ Erro ao conectar ao MongoDB (DEV local):', err));
+	}
+} else {
+	mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+		.then(() => console.log('✅ Conectado ao MongoDB'))
+		.catch(err => console.error('❌ Erro ao conectar ao MongoDB:', err));
+}
 
 // Rotas API
 app.use('/webhook', webhookRoutes);
@@ -127,18 +138,18 @@ app.get('/demo', (req, res) => {
 });
 
 // Fallback SPA: qualquer rota não-API retorna index.html
-if (serveClient) {
-	app.get('*', (req, res, next) => {
-		const isApi = req.originalUrl.startsWith('/api/') ||
-									req.originalUrl.startsWith('/webhook') ||
-									req.originalUrl.startsWith('/client') ||
-									req.originalUrl.startsWith('/whatsapp') ||
-									req.originalUrl.startsWith('/compromisso') ||
-									req.originalUrl.startsWith('/health');
-		if (isApi) return next();
-		res.sendFile(path.join(buildDir, 'index.html'));
-	});
-}
+app.get('*', (req, res, next) => {
+	const isApi = req.originalUrl.startsWith('/api/') ||
+								req.originalUrl.startsWith('/webhook') ||
+								req.originalUrl.startsWith('/client') ||
+								req.originalUrl.startsWith('/whatsapp') ||
+								req.originalUrl.startsWith('/compromisso') ||
+								req.originalUrl.startsWith('/health') ||
+								req.originalUrl.startsWith('/public') ||
+								req.originalUrl === '/demo';
+	if (isApi) return next();
+	res.sendFile(path.join(buildDir, 'index.html'));
+});
 
 // Middleware de erros
 app.use((err, req, res, next) => {
