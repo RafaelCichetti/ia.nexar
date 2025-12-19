@@ -30,8 +30,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos da pasta public (raiz do projeto)
-app.use(express.static(path.join(__dirname, '..', 'public')));
+// Servir arquivos estáticos da pasta public (apenas sob /public)
+app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 
 // Servir build do React (client/build) em produção ou quando habilitado
 const serveClient = process.env.NODE_ENV === 'production' || String(process.env.SERVE_CLIENT || '').toLowerCase() === 'true';
@@ -118,6 +118,12 @@ app.get('/health', async (req, res) => {
 	} catch (e) {
 		res.status(500).json({ status: 'erro', erro: e.message });
 	}
+});
+
+// Rota explícita para demo institucional antiga (opcional)
+app.get('/demo', (req, res) => {
+	const demoPath = path.join(__dirname, '..', 'public', 'demo.html');
+	res.sendFile(demoPath);
 });
 
 // Fallback SPA: qualquer rota não-API retorna index.html

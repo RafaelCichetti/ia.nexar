@@ -69,7 +69,7 @@ function AppContent() {
   const location = useLocation();
   const { user } = useAuth();
   const isLogin = location.pathname === '/login';
-  const isLanding = location.pathname === '/';
+  const isLanding = location.pathname === '/landing';
   const isCliente = user && user.tipo === 'cliente';
 
   return (
@@ -82,7 +82,8 @@ function AppContent() {
   <main className={`main-content ${isLanding ? 'landing' : ''}`}>
           <Routes>
             {/* Rotas públicas */}
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/landing" element={<Landing />} />
             <Route path="/termos" element={<Termos />} />
             <Route path="/privacidade" element={<Privacidade />} />
             <Route path="/login" element={
