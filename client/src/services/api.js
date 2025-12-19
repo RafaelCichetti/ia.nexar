@@ -1,7 +1,8 @@
 
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5010';
+// Base de API: usa REACT_APP_API_URL quando definido; caso contrário, same-origin
+const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
