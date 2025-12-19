@@ -2,6 +2,26 @@
   "name": "nexar-server",
   "private": true,
   "version": "1.0.0",
-  "description": "Server bootstrap for Render start script (uses root dependencies)",
-  "license": "MIT"
+  "description": "Servidor Express principal para Render",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.57.0",
+    "axios": "^1.5.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.0",
+    "mongoose-sequence": "^6.0.1",
+    "morgan": "^1.10.0",
+    "natural": "^8.1.0",
+    "nodemailer": "^6.9.13",
+    "openai": "^5.11.0",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "sentiment": "^5.0.2",
+    "whatsapp-web.js": "^1.31.0"
+  }
 }

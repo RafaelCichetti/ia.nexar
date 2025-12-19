@@ -2,15 +2,10 @@
   "name": "saas-ia-whatsapp",
   "version": "1.0.0",
   "description": "Plataforma SaaS de IA Vertical para atendimento via WhatsApp",
-  "main": "server.js",
+  "main": "server/index.js",
   "scripts": {
-    "start": "cd server && npm install && node index.js",
-    "dev": "nodemon server.js",
-    "client": "cd client && npm start",
     "build": "cd client && npm install && npm run build",
-    "test": "node test-setup.js",
-    "test-api": "echo \"Testando API...\" && curl http://localhost:3000 || echo \"Inicie o servidor primeiro com 'npm run dev'\"",
-    "setup": "npm install && cd client && npm install && cd .. && echo \"✅ Instalação concluída! Execute 'npm run dev' para iniciar.\""
+    "start": "cd server && npm install && node index.js"
   },
   "keywords": [
     "whatsapp",
