@@ -20,19 +20,14 @@ const ReminderService = require(path.join(__dirname, '..', 'src', 'services', 'R
 const app = express();
 const BASE_PORT = parseInt(process.env.PORT, 10) || 5000;
 let PORT = BASE_PORT;
+let initialized = false;
 
 if (!process.env.JWT_SECRET) {
 	process.env.JWT_SECRET = 'dev-temporary-jwt-secret-change-in-production';
 	console.warn('⚠️  JWT_SECRET não definido. Usando fallback inseguro (apenas DEV). Defina JWT_SECRET em produção!');
 }
 
-app.use(helmet());
-app.use(morgan('combined'));
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Estáticos e rotas serão registrados após a conexão ao MongoDB
+// Middlewares, estáticos e rotas serão registrados SOMENTE após conexão ao MongoDB
 
 // Conectar ao MongoDB
 const mongoUri = process.env.MONGO_URI || null;
@@ -54,7 +49,32 @@ async function start() {
 			console.log('✅ Conectado ao MongoDB');
 		}
 
-		// Registrar estáticos e rotas somente após conexão
+
+		// Após a conexão, inicializa servidor e depois scheduler
+		startServer();
+		try {
+			ReminderService.start();
+			console.log('⏰ Scheduler de lembretes iniciado (30min antes)');
+		} catch (e) {
+			console.warn('⚠️  Falha ao iniciar scheduler de lembretes:', e?.message || e);
+		}
+	} catch (err) {
+		console.error('❌ Erro ao conectar ao MongoDB:', err);
+		process.exit(1);
+	}
+}
+start();
+
+
+function startServer(attempt = 0) {
+	// Registra middlewares, estáticos e rotas apenas uma vez
+	if (!initialized) {
+		app.use(helmet());
+		app.use(morgan('combined'));
+		app.use(cors());
+		app.use(express.json());
+		app.use(express.urlencoded({ extended: true }));
+
 		const buildDir = path.join(__dirname, '..', 'client', 'build');
 		app.use(express.static(path.join(__dirname, '..', 'public'), { index: false }));
 		app.use(express.static(buildDir));
@@ -139,36 +159,20 @@ async function start() {
 		// Fallback SPA: qualquer rota não-API retorna index.html
 		app.get('*', (req, res, next) => {
 			const isApi = req.originalUrl.startsWith('/api/') ||
-											req.originalUrl.startsWith('/webhook') ||
-											req.originalUrl.startsWith('/client') ||
-											req.originalUrl.startsWith('/whatsapp') ||
-											req.originalUrl.startsWith('/compromisso') ||
-											req.originalUrl.startsWith('/health') ||
-											req.originalUrl.startsWith('/public') ||
-											req.originalUrl === '/demo';
+								req.originalUrl.startsWith('/webhook') ||
+								req.originalUrl.startsWith('/client') ||
+								req.originalUrl.startsWith('/whatsapp') ||
+								req.originalUrl.startsWith('/compromisso') ||
+								req.originalUrl.startsWith('/health') ||
+								req.originalUrl.startsWith('/public') ||
+								req.originalUrl === '/demo';
 			if (isApi) return next();
+			const buildDir = path.join(__dirname, '..', 'client', 'build');
 			res.sendFile(path.join(buildDir, 'index.html'));
 		});
 
-		// Inicia servidor após configurar rotas e estáticos
-		startServer();
-
-		// Inicia o scheduler após conexão
-		try {
-			ReminderService.start();
-			console.log('⏰ Scheduler de lembretes iniciado (30min antes)');
-		} catch (e) {
-			console.warn('⚠️  Falha ao iniciar scheduler de lembretes:', e?.message || e);
-		}
-	} catch (err) {
-		console.error('❌ Erro ao conectar ao MongoDB:', err);
-		process.exit(1);
+		initialized = true;
 	}
-}
-start();
-
-
-function startServer(attempt = 0) {
 	const server = app.listen(PORT, () => {
 		if (attempt > 0) {
 			console.log(`⚠️ Porta base ${BASE_PORT} ocupada. Usando porta alternativa ${PORT}.`);
