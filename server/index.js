@@ -32,52 +32,137 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos da pasta public na raiz, sem index para não sobrescrever SPA
-app.use(express.static(path.join(__dirname, '..', 'public'), { index: false }));
-
-// Servir build do React (client/build) em produção ou quando habilitado
-// Sempre servir o build do React (garante SPA em produção)
-const buildDir = path.join(__dirname, '..', 'client', 'build');
-app.use(express.static(buildDir));
+// Estáticos e rotas serão registrados após a conexão ao MongoDB
 
 // Conectar ao MongoDB
 const mongoUri = process.env.MONGO_URI || null;
-if (!mongoUri) {
-	const msg = '❌ MONGO_URI não definida. Configure a conexão do MongoDB (Atlas) em produção.';
-	console.error(msg);
-	if (process.env.NODE_ENV === 'production') {
-		// Em produção, não tentar fallback para localhost
-		// Encerrar o processo para evidenciar a má configuração
-		process.exit(1);
-	} else {
-		const localUri = 'mongodb://localhost:27017/saas-ia-whatsapp';
-		console.warn(`⚠️  Usando fallback local em DEV: ${localUri}`);
-		mongoose.connect(localUri, { useNewUrlParser: true, useUnifiedTopology: true })
-			.then(() => {
+async function start() {
+	try {
+		if (!mongoUri) {
+			const msg = '❌ MONGO_URI não definida. Configure a conexão do MongoDB (Atlas) em produção.';
+			console.error(msg);
+			if (process.env.NODE_ENV === 'production') {
+				process.exit(1);
+			} else {
+				const localUri = 'mongodb://localhost:27017/saas-ia-whatsapp';
+				console.warn(`⚠️  Usando fallback local em DEV: ${localUri}`);
+				await mongoose.connect(localUri, { useNewUrlParser: true, useUnifiedTopology: true });
 				console.log('✅ Conectado ao MongoDB (DEV local)');
-				startServer();
-				try {
-					ReminderService.start();
-					console.log('⏰ Scheduler de lembretes iniciado (30min antes)');
-				} catch (e) {
-					console.warn('⚠️  Falha ao iniciar scheduler de lembretes:', e?.message || e);
-				}
-			})
-			.catch(err => console.error('❌ Erro ao conectar ao MongoDB (DEV local):', err));
-	}
-} else {
-	mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
-		.then(() => {
-			console.log('✅ Conectado ao MongoDB');
-			startServer();
-			try {
-				ReminderService.start();
-				console.log('⏰ Scheduler de lembretes iniciado (30min antes)');
-			} catch (e) {
-				console.warn('⚠️  Falha ao iniciar scheduler de lembretes:', e?.message || e);
 			}
-		})
-		.catch(err => console.error('❌ Erro ao conectar ao MongoDB:', err));
+		} else {
+			await mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
+			console.log('✅ Conectado ao MongoDB');
+		}
+
+		// Registrar estáticos e rotas somente após conexão
+		const buildDir = path.join(__dirname, '..', 'client', 'build');
+		app.use(express.static(path.join(__dirname, '..', 'public'), { index: false }));
+		app.use(express.static(buildDir));
+
+		// Rotas API
+		app.use('/webhook', webhookRoutes);
+		app.use('/client', clientRoutes);
+		app.use('/whatsapp', whatsappRoutes);
+		app.use('/api/auth', authRoutes);
+		app.use('/compromisso', compromissoRoutes);
+		app.use('/api/public', publicRoutes);
+		app.use('/api/ai', aiRoutes);
+
+		// Rota de teste para debugging
+		app.post('/test-webhook', async (req, res) => {
+			try {
+				console.log('🧪 TESTE: Simulando webhook...', req.body);
+				const { client_id, phone_number, message } = req.body;
+
+				const Client = require(path.join(__dirname, '..', 'src', 'models', 'Client'));
+				const client = await Client.findOne({ client_id });
+
+				if (!client) {
+					return res.status(404).json({ error: 'Cliente não encontrado' });
+				}
+
+				const IAEngine = require(path.join(__dirname, '..', 'src', 'services', 'IAEngineNovo'));
+				const iaEngine = new IAEngine();
+
+				const resultado = await iaEngine.gerarResposta(message, client, phone_number);
+
+				res.json({
+					success: true,
+					client_data: {
+						name: client.name,
+						ai_assistant_name: client.ai_assistant_name,
+						has_custom_instructions: !!client.ai_instructions
+					},
+					ia_response: resultado
+				});
+
+			} catch (error) {
+				console.error('❌ Erro no teste:', error);
+				res.status(500).json({ error: error.message });
+			}
+		});
+
+		// Rota raiz simples
+		app.get('/', (req, res) => {
+			res.json({
+				message: '🤖 SaaS IA WhatsApp API está funcionando!',
+				version: '1.0.0',
+				endpoints: {
+					webhook: '/webhook',
+					client: '/client/:id'
+				}
+			});
+		});
+
+		// Healthcheck
+		app.get('/health', async (req, res) => {
+			try {
+				const dbState = mongoose.connection.readyState;
+				const estados = { 0: 'desconectado', 1: 'conectado', 2: 'conectando', 3: 'desconectando' };
+				res.status(dbState === 1 ? 200 : 500).json({
+					status: 'ok',
+					uptime_seconds: process.uptime(),
+					db_state: estados[dbState] || dbState,
+					timestamp: new Date().toISOString()
+				});
+			} catch (e) {
+				res.status(500).json({ status: 'erro', erro: e.message });
+			}
+		});
+
+		// Rota explícita para demo institucional antiga (opcional)
+		app.get('/demo', (req, res) => {
+			const demoPath = path.join(__dirname, '..', 'public', 'demo.html');
+			res.sendFile(demoPath);
+		});
+
+		// Fallback SPA: qualquer rota não-API retorna index.html
+		app.get('*', (req, res, next) => {
+			const isApi = req.originalUrl.startsWith('/api/') ||
+											req.originalUrl.startsWith('/webhook') ||
+											req.originalUrl.startsWith('/client') ||
+											req.originalUrl.startsWith('/whatsapp') ||
+											req.originalUrl.startsWith('/compromisso') ||
+											req.originalUrl.startsWith('/health') ||
+											req.originalUrl.startsWith('/public') ||
+											req.originalUrl === '/demo';
+			if (isApi) return next();
+			res.sendFile(path.join(buildDir, 'index.html'));
+		});
+
+		// Inicia o scheduler após conexão
+		try {
+			ReminderService.start();
+			console.log('⏰ Scheduler de lembretes iniciado (30min antes)');
+		} catch (e) {
+			console.warn('⚠️  Falha ao iniciar scheduler de lembretes:', e?.message || e);
+		}
+	} catch (err) {
+		console.error('❌ Erro ao conectar ao MongoDB:', err);
+		process.exit(1);
+	}
+}
+start();
 }
 
 // Bloqueia acesso às rotas que dependem de DB quando não conectado (retorna 503)
