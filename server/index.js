@@ -199,5 +199,14 @@ async function startServer(attempt = 0) {
 }
 
 // startServer e scheduler agora são iniciados somente após a conexão ao MongoDB
+// Chama startServer com proteção global para evitar encerramento silencioso
+(async () => {
+	try {
+		await startServer();
+	} catch (err) {
+		console.error('❌ Erro fatal ao iniciar servidor:', err);
+		process.exit(1);
+	}
+})();
 
 module.exports = app;
