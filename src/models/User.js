@@ -8,6 +8,9 @@ const UserSchema = new mongoose.Schema({
   tipo: { type: String, enum: ['admin', 'cliente'], required: true },
   client_id: { type: Number, default: null }, // Só para tipo 'cliente'
   created_at: { type: Date, default: Date.now }
+}, {
+  collection: 'users',
+  bufferCommands: false
 });
 
 UserSchema.pre('save', async function(next) {
