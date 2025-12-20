@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+// Desativa buffering de comandos para evitar timeouts enquanto a conexão não está pronta
+mongoose.set('bufferCommands', false);
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -51,14 +53,41 @@ if (!mongoUri) {
 		const localUri = 'mongodb://localhost:27017/saas-ia-whatsapp';
 		console.warn(`⚠️  Usando fallback local em DEV: ${localUri}`);
 		mongoose.connect(localUri, { useNewUrlParser: true, useUnifiedTopology: true })
-			.then(() => console.log('✅ Conectado ao MongoDB (DEV local)'))
+			.then(() => {
+				console.log('✅ Conectado ao MongoDB (DEV local)');
+				startServer();
+				try {
+					ReminderService.start();
+					console.log('⏰ Scheduler de lembretes iniciado (30min antes)');
+				} catch (e) {
+					console.warn('⚠️  Falha ao iniciar scheduler de lembretes:', e?.message || e);
+				}
+			})
 			.catch(err => console.error('❌ Erro ao conectar ao MongoDB (DEV local):', err));
 	}
 } else {
 	mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
-		.then(() => console.log('✅ Conectado ao MongoDB'))
+		.then(() => {
+			console.log('✅ Conectado ao MongoDB');
+			startServer();
+			try {
+				ReminderService.start();
+				console.log('⏰ Scheduler de lembretes iniciado (30min antes)');
+			} catch (e) {
+				console.warn('⚠️  Falha ao iniciar scheduler de lembretes:', e?.message || e);
+			}
+		})
 		.catch(err => console.error('❌ Erro ao conectar ao MongoDB:', err));
 }
+
+// Bloqueia acesso às rotas que dependem de DB quando não conectado (retorna 503)
+app.use(['/api', '/client', '/webhook', '/whatsapp', '/compromisso'], (req, res, next) => {
+	const ready = mongoose.connection.readyState === 1;
+	if (!ready) {
+		return res.status(503).json({ success: false, error: 'Serviço temporariamente indisponível' });
+	}
+	next();
+});
 
 // Rotas API
 app.use('/webhook', webhookRoutes);
@@ -195,14 +224,6 @@ function startServer(attempt = 0) {
 	});
 }
 
-startServer();
-
-// Inicia o scheduler de lembretes (não bloqueante)
-try {
-	ReminderService.start();
-	console.log('⏰ Scheduler de lembretes iniciado (30min antes)');
-} catch (e) {
-	console.warn('⚠️  Falha ao iniciar scheduler de lembretes:', e?.message || e);
-}
+// startServer e scheduler agora são iniciados somente após a conexão ao MongoDB
 
 module.exports = app;
