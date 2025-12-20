@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const Client = require('../models/Client');
 const IAService = require('../services/IAService');
 
-// POST /client - Criar novo cliente e usuário principal
-const User = require('../models/User');
+// Lazy getters para garantir carga dos models somente após conexão
+const getClientModel = () => require('../models/Client');
+const getUserModel = () => require('../models/User');
 router.post('/', async (req, res) => {
   try {
+    const Client = getClientModel();
+    const User = getUserModel();
     const {
       name,
       phone_number,
@@ -85,6 +87,7 @@ router.post('/', async (req, res) => {
 // GET /client/:id - Buscar cliente por ID
 router.get('/:id', async (req, res) => {
   try {
+    const Client = getClientModel();
     const client = await Client.findOne({ client_id: req.params.id });
 
     if (!client) {
@@ -114,6 +117,7 @@ router.get('/:id', async (req, res) => {
 // PUT /client/:id - Atualizar cliente
 router.put('/:id', async (req, res) => {
   try {
+    const Client = getClientModel();
     console.log('📝 Atualizando cliente:', req.params.id);
     console.log('📋 Dados recebidos:', req.body);
     
@@ -188,6 +192,7 @@ router.put('/:id', async (req, res) => {
 // POST /client/:id/ia - Adicionar configuração de IA
 router.post('/:id/ia', async (req, res) => {
   try {
+    const Client = getClientModel();
     const { keyword, response } = req.body;
 
     if (!keyword || !response) {
@@ -220,6 +225,7 @@ router.post('/:id/ia', async (req, res) => {
 // DELETE /client/:id/ia/:configId - Remover configuração de IA
 router.delete('/:id/ia/:configId', async (req, res) => {
   try {
+    const Client = getClientModel();
     const result = await IAService.removeIAConfig(req.params.id, req.params.configId);
 
     if (!result.success) {
@@ -244,6 +250,7 @@ router.delete('/:id/ia/:configId', async (req, res) => {
 // GET /client/:id/stats - Obter estatísticas avançadas do cliente
 router.get('/:id/stats', async (req, res) => {
   try {
+    const Client = getClientModel();
     const client = await Client.findOne({ client_id: req.params.id });
 
     if (!client) {
@@ -388,6 +395,7 @@ router.get('/:id/stats', async (req, res) => {
 // GET /client/:id/report - Gerar relatório em PDF
 router.get('/:id/report', async (req, res) => {
   try {
+    const Client = getClientModel();
     const client = await Client.findOne({ client_id: req.params.id });
 
     if (!client) {
@@ -426,6 +434,7 @@ router.get('/:id/report', async (req, res) => {
 // GET /client/:id/stats - Obter estatísticas do cliente (rota antiga para compatibilidade)
 router.get('/:id/stats-old', async (req, res) => {
   try {
+    const Client = getClientModel();
     const client = await Client.findOne({ client_id: req.params.id });
 
     if (!client) {
@@ -462,6 +471,7 @@ router.get('/', auth, async (req, res) => {
     return res.status(403).json({ success: false, error: 'Acesso negado: apenas administradores' });
   }
   try {
+    const Client = getClientModel();
     const clients = await Client.find({}, {
       whatsapp_token: 0,
       verify_token: 0
@@ -484,6 +494,8 @@ router.get('/', auth, async (req, res) => {
 // DELETE /client/:id - Deletar cliente
 router.delete('/:id', async (req, res) => {
   try {
+    const Client = getClientModel();
+    const User = getUserModel();
     // Tenta deletar por client_id (numérico) ou _id (ObjectId)
 
     let client = await Client.findOneAndDelete({ client_id: req.params.id });
