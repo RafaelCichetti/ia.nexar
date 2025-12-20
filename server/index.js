@@ -8,15 +8,6 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
 
-const webhookRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'webhook'));
-const clientRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'client'));
-const whatsappRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'whatsapp'));
-const authRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'auth'));
-const compromissoRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'compromisso'));
-const publicRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'public'));
-const aiRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'ai'));
-const ReminderService = require(path.join(__dirname, '..', 'src', 'services', 'ReminderService'));
-
 const app = express();
 const BASE_PORT = parseInt(process.env.PORT, 10) || 5000;
 let PORT = BASE_PORT;
@@ -29,9 +20,9 @@ if (!process.env.JWT_SECRET) {
 
 // Middlewares, estáticos e rotas serão registrados SOMENTE após conexão ao MongoDB
 
-// Conectar ao MongoDB
-const mongoUri = process.env.MONGO_URI || null;
-async function start() {
+// Conectar ao MongoDB e iniciar servidor somente após conexão
+async function startServer(attempt = 0) {
+	const mongoUri = process.env.MONGO_URI || null;
 	try {
 		if (!mongoUri) {
 			const msg = '❌ MONGO_URI não definida. Configure a conexão do MongoDB (Atlas) em produção.';
@@ -49,24 +40,7 @@ async function start() {
 			console.log('✅ Conectado ao MongoDB');
 		}
 
-
-		// Após a conexão, inicializa servidor e depois scheduler
-		startServer();
-		try {
-			ReminderService.start();
-			console.log('⏰ Scheduler de lembretes iniciado (30min antes)');
-		} catch (e) {
-			console.warn('⚠️  Falha ao iniciar scheduler de lembretes:', e?.message || e);
-		}
-	} catch (err) {
-		console.error('❌ Erro ao conectar ao MongoDB:', err);
-		process.exit(1);
-	}
-}
-start();
-
-
-function startServer(attempt = 0) {
+		// Registra middlewares, estáticos e rotas apenas uma vez, após conexão
 	// Registra middlewares, estáticos e rotas apenas uma vez
 	if (!initialized) {
 		app.use(helmet());
@@ -80,6 +54,13 @@ function startServer(attempt = 0) {
 		app.use(express.static(buildDir));
 
 		// Rotas API
+		const webhookRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'webhook'));
+		const clientRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'client'));
+		const whatsappRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'whatsapp'));
+		const authRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'auth'));
+		const compromissoRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'compromisso'));
+		const publicRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'public'));
+		const aiRoutes = require(path.join(__dirname, '..', 'src', 'routes', 'ai'));
 		app.use('/webhook', webhookRoutes);
 		app.use('/client', clientRoutes);
 		app.use('/whatsapp', whatsappRoutes);
@@ -173,30 +154,48 @@ function startServer(attempt = 0) {
 
 		initialized = true;
 	}
-	const server = app.listen(PORT, () => {
-		if (attempt > 0) {
-			console.log(`⚠️ Porta base ${BASE_PORT} ocupada. Usando porta alternativa ${PORT}.`);
-		}
-		console.log(`🚀 Servidor rodando na porta ${PORT}`);
-		console.log(`📱 Webhook disponível em: http://localhost:${PORT}/webhook`);
-		console.log(`⚙️ API do cliente em: http://localhost:${PORT}/client`);
-	});
+	// Função interna para escutar, sem reimportar rotas em caso de conflito de porta
+	const listen = (attemptListen = attempt) => {
+		const server = app.listen(PORT, () => {
+			if (attemptListen > 0) {
+				console.log(`⚠️ Porta base ${BASE_PORT} ocupada. Usando porta alternativa ${PORT}.`);
+			}
+			console.log(`🚀 Servidor rodando na porta ${PORT}`);
+			console.log(`📱 Webhook disponível em: http://localhost:${PORT}/webhook`);
+			console.log(`⚙️ API do cliente em: http://localhost:${PORT}/client`);
+		});
 
-	server.on('error', (err) => {
-		if (err.code === 'EADDRINUSE') {
-			if (attempt < 5) {
-				console.warn(`⚠️ Porta ${PORT} em uso. Tentando próxima porta...`);
-				PORT = BASE_PORT + attempt + 1;
-				setTimeout(() => startServer(attempt + 1), 200);
+		server.on('error', (err) => {
+			if (err.code === 'EADDRINUSE') {
+				if (attemptListen < 5) {
+					console.warn(`⚠️ Porta ${PORT} em uso. Tentando próxima porta...`);
+					PORT = BASE_PORT + attemptListen + 1;
+					setTimeout(() => listen(attemptListen + 1), 200);
+				} else {
+					console.error('❌ Não foi possível encontrar uma porta livre após várias tentativas.');
+					process.exit(1);
+				}
 			} else {
-				console.error('❌ Não foi possível encontrar uma porta livre após várias tentativas.');
+				console.error('❌ Erro ao iniciar servidor:', err);
 				process.exit(1);
 			}
-		} else {
-			console.error('❌ Erro ao iniciar servidor:', err);
-			process.exit(1);
-		}
-	});
+		});
+	};
+
+	// Inicia servidor e, após iniciar, scheduler
+	listen();
+	try {
+		const ReminderService = require(path.join(__dirname, '..', 'src', 'services', 'ReminderService'));
+		ReminderService.start();
+		console.log('⏰ Scheduler de lembretes iniciado (30min antes)');
+	} catch (e) {
+		console.warn('⚠️  Falha ao iniciar scheduler de lembretes:', e?.message || e);
+	}
+    
+	} catch (err) {
+		console.error('❌ Erro ao conectar ao MongoDB:', err);
+		process.exit(1);
+	}
 }
 
 // startServer e scheduler agora são iniciados somente após a conexão ao MongoDB
