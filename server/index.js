@@ -30,8 +30,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos da pasta public (apenas sob /public)
-app.use('/public', express.static(path.join(__dirname, '..', 'public')));
+// Servir arquivos estáticos da pasta public na raiz, sem index para não sobrescrever SPA
+app.use(express.static(path.join(__dirname, '..', 'public'), { index: false }));
 
 // Servir build do React (client/build) em produção ou quando habilitado
 // Sempre servir o build do React (garante SPA em produção)

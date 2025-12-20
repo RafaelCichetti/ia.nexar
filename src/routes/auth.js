@@ -22,13 +22,25 @@ function auth(req, res, next) {
 
 // Login
 router.post('/login', async (req, res) => {
-  const { email, senha } = req.body;
-  const user = await User.findOne({ email });
-  if (!user || !(await user.comparePassword(senha))) {
-    return res.status(401).json({ success: false, error: 'Credenciais inválidas' });
+  try {
+    const { email, senha } = req.body;
+    if (!email || !senha) {
+      return res.status(400).json({ success: false, error: 'Email e senha são obrigatórios' });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Credenciais inválidas' });
+    }
+    const ok = await user.comparePassword(senha);
+    if (!ok) {
+      return res.status(401).json({ success: false, error: 'Credenciais inválidas' });
+    }
+    const token = jwt.sign({ id: user._id, tipo: user.tipo, client_id: user.client_id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    res.json({ success: true, data: { token, user: { nome: user.nome, email: user.email, tipo: user.tipo, client_id: user.client_id } } });
+  } catch (e) {
+    console.error('Erro na rota /api/auth/login:', e?.message || e);
+    res.status(500).json({ success: false, error: 'Erro interno' });
   }
-  const token = jwt.sign({ id: user._id, tipo: user.tipo, client_id: user.client_id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-  res.json({ success: true, data: { token, user: { nome: user.nome, email: user.email, tipo: user.tipo, client_id: user.client_id } } });
 });
 
 // Cadastro de usuário (apenas admin)
@@ -46,9 +58,14 @@ router.post('/register', auth, async (req, res) => {
 
 // Dados do usuário logado
 router.get('/me', auth, async (req, res) => {
-  const user = await User.findById(req.user.id).select('-senha');
-  if (!user) return res.status(404).json({ success: false, error: 'Usuário não encontrado' });
-  res.json({ success: true, data: user });
+  try {
+    const user = await User.findById(req.user.id).select('-senha');
+    if (!user) return res.status(404).json({ success: false, error: 'Usuário não encontrado' });
+    res.json({ success: true, data: user });
+  } catch (e) {
+    console.error('Erro na rota /api/auth/me:', e?.message || e);
+    res.status(500).json({ success: false, error: 'Erro interno' });
+  }
 });
 
 // Listar administradores (apenas admin)
