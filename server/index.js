@@ -1,6 +1,17 @@
 const express = require('express');
 const path = require('path');
-const mongoose = require('mongoose');
+
+// IMPORTANT: garante uso de UMA única instância de mongoose.
+// Se existir mongoose em server/node_modules e também em root/node_modules,
+// os models em ../src tendem a resolver o mongoose do root, enquanto este arquivo
+// (por estar em /server) pode resolver o mongoose do /server — causando o erro:
+// "Cannot call users.findOne() before initial connection is complete" mesmo após connect.
+let mongoose;
+try {
+	mongoose = require(path.join(__dirname, '..', 'node_modules', 'mongoose'));
+} catch {
+	mongoose = require('mongoose');
+}
 // Desativa buffering de comandos para evitar timeouts enquanto a conexão não está pronta
 mongoose.set('bufferCommands', false);
 const cors = require('cors');
@@ -170,7 +181,7 @@ async function startServer(attempt = 0) {
 				if (attemptListen < 5) {
 					console.warn(`⚠️ Porta ${PORT} em uso. Tentando próxima porta...`);
 					PORT = BASE_PORT + attemptListen + 1;
-					setTimeout(() => listen(attemptListen + 1), 200);
+					listen(attemptListen + 1);
 				} else {
 					console.error('❌ Não foi possível encontrar uma porta livre após várias tentativas.');
 					process.exit(1);

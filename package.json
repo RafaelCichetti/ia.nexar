@@ -5,7 +5,7 @@
   "main": "server/index.js",
   "scripts": {
     "build": "cd client && npm install && npm run build",
-    "start": "npm install && cd server && npm install && node index.js",
+    "start": "node server/index.js",
     "migrate:db": "node scripts/migrate-db.js"
   },
   "keywords": [
