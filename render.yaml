@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: nexar-saas-api
+    env: node
+    buildCommand: npm ci --omit=dev && npm run build
+    startCommand: npm start
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Configure estes no dashboard do Render (ou aqui se quiser versionar):
+      # - key: MONGO_URI
+      #   sync: false
+      # - key: JWT_SECRET
+      #   sync: false
+      # - key: OPENAI_API_KEY
+      #   sync: false
