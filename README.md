@@ -180,33 +180,6 @@ public/
 └── demo.html        # Demonstração interativa
 ```
 
-## 🚨 Troubleshooting
-
-### ❌ API Key OpenAI inválida
-1. Acesse [OpenAI Platform](https://platform.openai.com/api-keys)
-2. Crie uma API Key
-3. Substitua no arquivo `.env`
-
-### ❌ MongoDB não conecta
-```bash
-# Verificar se está rodando
-mongod --version
-
-# Instalar MongoDB se necessário
-# Windows: MongoDB Community Server
-# Mac: brew install mongodb/brew/mongodb-community
-# Ubuntu: apt install mongodb
-```
-
-### ❌ Porta 3000 ocupada
-```bash
-# Parar processo na porta 3000
-npx kill-port 3000
-
-# Ou alterar porta no .env
-PORT=3001
-```
-
 ## 💰 Custos Estimados
 
 ### OpenAI GPT-3.5-turbo
