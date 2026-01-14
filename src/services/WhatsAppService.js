@@ -442,6 +442,19 @@ class WhatsAppService {
         return;
       }
 
+      const waClient = this.clients.get(clientId);
+      if (!waClient) {
+        console.warn(`⚠️ Cliente WhatsApp não encontrado para ${clientId}. Ignorando mensagem.`);
+        return;
+      }
+
+      const chatId = message.from;
+      const chat = await waClient.getChatById(chatId).catch(() => null);
+      if (!chat) {
+        console.warn(`⚠️ Chat não encontrado, ignorando mensagem para ${clientId}:`, chatId);
+        return;
+      }
+
       const ClientModel = require('../models/Client');
       const cliente = await ClientModel.findOne({ client_id: clientId });
       if (!cliente) {
@@ -468,52 +481,57 @@ class WhatsAppService {
   const inicio = Date.now();
   const resultado = await iaEngine.gerarResposta(message.body, clienteComNomeUsuario, numeroLimpo);
 
-      if (resultado && resultado.sucesso && resultado.resposta) {
-        console.log(`✅ Resposta da IA OpenAI: ${resultado.resposta}`);
-        await message.reply(resultado.resposta);
+      try {
+        if (resultado && resultado.sucesso && resultado.resposta) {
+          console.log(`✅ Resposta da IA OpenAI: ${resultado.resposta}`);
+          await chat.sendMessage(resultado.resposta);
 
-        cliente.stats.total_messages += 1;
-        cliente.stats.ai_responses += 1;
-        cliente.stats.last_message = new Date();
-        await cliente.save();
-
-        console.log(`📤 Resposta IA OpenAI enviada via WhatsApp para ${numeroLimpo}`);
-
-        // Log de conversa para manter histórico e permitir contexto nas próximas mensagens
-        try {
-          const metadata = {
-            model: resultado.modelo || 'desconhecido',
-            tokens_used: resultado.tokens_usados || 0,
-            cost_usd: 0,
-            response_time_ms: Date.now() - inicio,
-            context_used: true,
-            success: true
-          };
-          await iaEngine.logConversa(message.body, resultado.resposta, clienteComNomeUsuario, numeroLimpo, metadata);
-        } catch (e) {
-          console.warn('⚠️  Falha ao registrar ConversationLog:', e.message);
-        }
-      } else {
-        console.log('⚠️  IA OpenAI não gerou resposta - usando default do cliente');
-        if (cliente.default_response) {
-          await message.reply(cliente.default_response);
-          cliente.stats.default_responses += 1;
+          cliente.stats.total_messages += 1;
+          cliente.stats.ai_responses += 1;
+          cliente.stats.last_message = new Date();
           await cliente.save();
 
-          // Log também a resposta default para manter trilha histórica
+          console.log(`📤 Resposta IA OpenAI enviada via WhatsApp para ${numeroLimpo}`);
+
+          // Log de conversa para manter histórico e permitir contexto nas próximas mensagens
           try {
-            await iaEngine.logConversa(message.body, cliente.default_response, clienteComNomeUsuario, numeroLimpo, {
-              model: 'default',
-              tokens_used: 0,
+            const metadata = {
+              model: resultado.modelo || 'desconhecido',
+              tokens_used: resultado.tokens_usados || 0,
               cost_usd: 0,
               response_time_ms: Date.now() - inicio,
-              context_used: false,
+              context_used: true,
               success: true
-            });
+            };
+            await iaEngine.logConversa(message.body, resultado.resposta, clienteComNomeUsuario, numeroLimpo, metadata);
           } catch (e) {
-            console.warn('⚠️  Falha ao registrar ConversationLog (default):', e.message);
+            console.warn('⚠️  Falha ao registrar ConversationLog:', e.message);
+          }
+        } else {
+          console.log('⚠️  IA OpenAI não gerou resposta - usando default do cliente');
+          if (cliente.default_response) {
+            await chat.sendMessage(cliente.default_response);
+            cliente.stats.default_responses += 1;
+            await cliente.save();
+
+            // Log também a resposta default para manter trilha histórica
+            try {
+              await iaEngine.logConversa(message.body, cliente.default_response, clienteComNomeUsuario, numeroLimpo, {
+                model: 'default',
+                tokens_used: 0,
+                cost_usd: 0,
+                response_time_ms: Date.now() - inicio,
+                context_used: false,
+                success: true
+              });
+            } catch (e) {
+              console.warn('⚠️  Falha ao registrar ConversationLog (default):', e.message);
+            }
           }
         }
+      } catch (sendErr) {
+        console.error(`❌ Erro ao enviar mensagem WhatsApp para ${clientId}:`, sendErr?.message || sendErr);
+        return;
       }
     } catch (error) {
       console.error(`❌ Erro ao processar mensagem IA OpenAI para ${clientId}:`, error);
@@ -528,7 +546,12 @@ class WhatsAppService {
         return { success: false, message: 'Cliente não conectado' };
       }
       const chatId = number.includes('@c.us') ? number : `${number}@c.us`;
-      await client.sendMessage(chatId, message);
+      const chat = await client.getChatById(chatId).catch(() => null);
+      if (!chat) {
+        console.warn(`⚠️ Chat não encontrado, abortando envio: ${chatId}`);
+        return { success: false, message: 'Chat não encontrado' };
+      }
+      await chat.sendMessage(message);
       return { success: true, message: 'Mensagem enviada' };
     } catch (error) {
       console.error(`❌ Erro ao enviar mensagem para ${clientId}:`, error);
