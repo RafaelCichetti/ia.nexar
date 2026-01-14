@@ -337,18 +337,28 @@ class WhatsAppService {
         };
       }
 
+      const hasQrCode = this.qrCodes.has(clientId);
+      if (hasQrCode) {
+        return {
+          success: true,
+          status: 'qr_ready',
+          message: 'Escaneie o QR Code para conectar',
+          hasQrCode: true,
+          qrCode: this.qrCodes.get(clientId),
+        };
+      }
+
       if (!client.pupPage || !this.clientReady.get(clientId)) {
         return {
           success: true,
           status: 'initializing',
           message: 'Inicializando sessão do WhatsApp... ',
-          hasQrCode: this.qrCodes.has(clientId),
-          qrCode: this.qrCodes.get(clientId) || null,
+          hasQrCode: false,
+          qrCode: null,
         };
       }
 
       const state = await client.getState();
-      const hasQrCode = this.qrCodes.has(clientId);
 
       let status = 'disconnected';
       let message = 'Status desconhecido';
