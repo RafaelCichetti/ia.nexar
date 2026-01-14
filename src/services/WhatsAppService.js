@@ -55,6 +55,12 @@ class WhatsAppService {
           continue;
         }
 
+        if (chat.archived || chat.isMuted) {
+          console.warn('⚠️ Chat arquivado/mutado, ignorando envio:', chatId);
+          this.pendingReplies.delete(chatId);
+          continue;
+        }
+
         try {
           await chat.sendMessage(text);
         } catch (err) {
@@ -180,6 +186,7 @@ class WhatsAppService {
         clientId,
         dataPath: path.join(__dirname, '../../.wwebjs_auth'),
       }),
+      markOnlineOnConnect: false,
       restartOnAuthFail: true,
       takeoverOnConflict: true,
       takeoverTimeoutMs: 30000,
