@@ -9,6 +9,7 @@ class WhatsAppService {
     this.clients = new Map(); // clientId -> Client
     this.qrCodes = new Map(); // clientId -> base64 png
     this.initializing = new Set(); // guarda para evitar init concorrente
+    this.pendingReplies = new Map(); // chatId -> { text, clientId, ts }
   // Instância única da IA para manter caches (intentCache + conversationCache)
   this.iaEngine = new IAEngine();
     this.initializeService();
@@ -16,6 +17,53 @@ class WhatsAppService {
 
   initializeService() {
     console.log('🚀 WhatsApp Service inicializado');
+    this._startReplyLoop();
+  }
+
+  _startReplyLoop() {
+    if (this._replyLoopStarted) return;
+    this._replyLoopStarted = true;
+
+    const intervalMs = Number(process.env.WA_REPLY_INTERVAL_MS || 1500);
+    setInterval(async () => {
+      for (const [chatId, payload] of this.pendingReplies.entries()) {
+        const { clientId, text } = payload || {};
+        if (!clientId || !text) {
+          this.pendingReplies.delete(chatId);
+          continue;
+        }
+
+        const waClient = this.clients.get(clientId);
+        if (!waClient) {
+          console.warn(`⚠️ Cliente WhatsApp não encontrado para ${clientId}. Abortando envio.`);
+          this.pendingReplies.delete(chatId);
+          continue;
+        }
+
+        let chat;
+        try {
+          chat = await waClient.getChatById(chatId);
+        } catch (e) {
+          console.warn('⚠️ Chat não encontrado, abortando envio:', chatId);
+          this.pendingReplies.delete(chatId);
+          continue;
+        }
+
+        if (!chat || !chat.id || !chat.id._serialized) {
+          console.warn('⚠️ Chat inválido, abortando envio:', chatId);
+          this.pendingReplies.delete(chatId);
+          continue;
+        }
+
+        try {
+          await chat.sendMessage(text);
+        } catch (err) {
+          console.warn('⚠️ Falha controlada ao enviar WhatsApp:', err?.message || err);
+        } finally {
+          this.pendingReplies.delete(chatId);
+        }
+      }
+    }, Math.max(1000, intervalMs));
   }
 
   // --- Helpers internos ---
@@ -442,24 +490,7 @@ class WhatsAppService {
         return;
       }
 
-      const waClient = this.clients.get(clientId);
-      if (!waClient) {
-        console.warn(`⚠️ Cliente WhatsApp não encontrado para ${clientId}. Ignorando mensagem.`);
-        return;
-      }
-
       const chatId = message.from;
-      let chat;
-      try {
-        chat = await waClient.getChatById(chatId);
-      } catch (e) {
-        console.warn('⚠️ Chat não encontrado, abortando envio:', chatId);
-        return;
-      }
-      if (!chat) {
-        console.warn('⚠️ Chat undefined, abortando envio:', chatId);
-        return;
-      }
 
       const ClientModel = require('../models/Client');
       const cliente = await ClientModel.findOne({ client_id: clientId });
@@ -490,7 +521,11 @@ class WhatsAppService {
       try {
         if (resultado && resultado.sucesso && resultado.resposta) {
           console.log(`✅ Resposta da IA OpenAI: ${resultado.resposta}`);
-          await chat.sendMessage(resultado.resposta);
+          this.pendingReplies.set(chatId, {
+            text: resultado.resposta,
+            clientId,
+            ts: Date.now()
+          });
 
           cliente.stats.total_messages += 1;
           cliente.stats.ai_responses += 1;
@@ -516,7 +551,11 @@ class WhatsAppService {
         } else {
           console.log('⚠️  IA OpenAI não gerou resposta - usando default do cliente');
           if (cliente.default_response) {
-            await chat.sendMessage(cliente.default_response);
+            this.pendingReplies.set(chatId, {
+              text: cliente.default_response,
+              clientId,
+              ts: Date.now()
+            });
             cliente.stats.default_responses += 1;
             await cliente.save();
 
