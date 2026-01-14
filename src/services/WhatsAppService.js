@@ -10,6 +10,7 @@ class WhatsAppService {
     this.qrCodes = new Map(); // clientId -> base64 png
     this.initializing = new Set(); // guarda para evitar init concorrente
     this.pendingReplies = new Map(); // chatId -> { text, clientId, ts }
+    this.clientReady = new Map(); // clientId -> boolean
   // Instância única da IA para manter caches (intentCache + conversationCache)
   this.iaEngine = new IAEngine();
     this.initializeService();
@@ -219,6 +220,7 @@ class WhatsAppService {
     client.on('ready', () => {
       console.log(`✅ Cliente ${clientId} conectado ao WhatsApp!`);
       this.qrCodes.delete(clientId);
+      this.clientReady.set(clientId, true);
       console.log(`[DEBUG] Cliente ${clientId} está pronto e aguardando mensagens.`);
       client
         .getChats()
@@ -242,6 +244,7 @@ class WhatsAppService {
       console.log(`📵 Cliente ${clientId} desconectado:`, reason);
       this.clients.delete(clientId);
       this.qrCodes.delete(clientId);
+      this.clientReady.delete(clientId);
       console.log(`[DEBUG] Cliente ${clientId} foi desconectado. Motivo:`, reason);
     });
 
@@ -331,6 +334,16 @@ class WhatsAppService {
           status: 'disconnected',
           message: 'WhatsApp não conectado',
           hasQrCode: false,
+        };
+      }
+
+      if (!client.pupPage || !this.clientReady.get(clientId)) {
+        return {
+          success: true,
+          status: 'initializing',
+          message: 'Inicializando sessão do WhatsApp... ',
+          hasQrCode: this.qrCodes.has(clientId),
+          qrCode: this.qrCodes.get(clientId) || null,
         };
       }
 
