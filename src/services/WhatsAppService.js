@@ -449,9 +449,15 @@ class WhatsAppService {
       }
 
       const chatId = message.from;
-      const chat = await waClient.getChatById(chatId).catch(() => null);
+      let chat;
+      try {
+        chat = await waClient.getChatById(chatId);
+      } catch (e) {
+        console.warn('⚠️ Chat não encontrado, abortando envio:', chatId);
+        return;
+      }
       if (!chat) {
-        console.warn(`⚠️ Chat não encontrado, ignorando mensagem para ${clientId}:`, chatId);
+        console.warn('⚠️ Chat undefined, abortando envio:', chatId);
         return;
       }
 
@@ -546,9 +552,15 @@ class WhatsAppService {
         return { success: false, message: 'Cliente não conectado' };
       }
       const chatId = number.includes('@c.us') ? number : `${number}@c.us`;
-      const chat = await client.getChatById(chatId).catch(() => null);
+      let chat;
+      try {
+        chat = await client.getChatById(chatId);
+      } catch (e) {
+        console.warn('⚠️ Chat não encontrado, abortando envio:', chatId);
+        return { success: false, message: 'Chat não encontrado' };
+      }
       if (!chat) {
-        console.warn(`⚠️ Chat não encontrado, abortando envio: ${chatId}`);
+        console.warn('⚠️ Chat undefined, abortando envio:', chatId);
         return { success: false, message: 'Chat não encontrado' };
       }
       await chat.sendMessage(message);
